@@ -15,22 +15,22 @@ const stad2 = {
     // ── Inner tier ──
     { id: 'eg_club',   name: 'Club House',       type: 'VVIP Premium',   color: '#FFB300', start: 250, end: 290,  inner: 0.20, outer: 0.40, base: 40000, mult: 2.2, cap: 600  },
     { id: 'eg_b',      name: 'B Block',          type: 'Premium Tier',   color: '#6A1B9A', start: 290, end: 360,  inner: 0.20, outer: 0.40, base: 8000,  mult: 1.6, cap: 3000 },
-    { id: 'eg_a',      name: 'A Block',          type: 'Premium Tier',   color: '#6A1B9A', start: 0,   end: 70,   inner: 0.20, outer: 0.40, base: 8000,  mult: 1.6, cap: 3000 },
-    { id: 'eg_h',      name: 'H Block',          type: 'Club Tier',      color: '#0277BD', start: 70,  end: 130,  inner: 0.20, outer: 0.40, base: 5000,  mult: 1.3, cap: 4000 },
-    { id: 'eg_g',      name: 'G Block',          type: 'Club Tier',      color: '#0277BD', start: 130, end: 190,  inner: 0.20, outer: 0.40, base: 5000,  mult: 1.3, cap: 3800 },
+    { id: 'eg_a',      name: 'A Block',          type: 'Premium Tier',   color: '#0277BD', start: 0,   end: 70,   inner: 0.20, outer: 0.40, base: 8000,  mult: 1.6, cap: 3000 },
+    { id: 'eg_h',      name: 'H Block',          type: 'Club Tier',      color: '#FFB300', start: 70,  end: 130,  inner: 0.20, outer: 0.40, base: 5000,  mult: 1.3, cap: 4000 },
+    { id: 'eg_g',      name: 'G Block',          type: 'Club Tier',      color: '#6A1B9A', start: 130, end: 190,  inner: 0.20, outer: 0.40, base: 5000,  mult: 1.3, cap: 3800 },
     { id: 'eg_f',      name: 'F Block',          type: 'Club Tier',      color: '#0277BD', start: 190, end: 250,  inner: 0.20, outer: 0.40, base: 5000,  mult: 1.3, cap: 3600 },
 
     // ── Middle tier ──
     { id: 'eg_vip',    name: 'VIP Pavilion',     type: 'VIP Elite',      color: '#FF8F00', start: 255, end: 285,  inner: 0.40, outer: 0.62, base: 25000, mult: 2.0, cap: 1200 },
-    { id: 'eg_exec_n', name: 'North Executive',  type: 'Executive Tier', color: '#4527A0', start: 285, end: 360,  inner: 0.40, outer: 0.62, base: 7000,  mult: 1.5, cap: 5500 },
-    { id: 'eg_exec_s', name: 'South Executive',  type: 'Executive Tier', color: '#4527A0', start: 0,   end: 75,   inner: 0.40, outer: 0.62, base: 7000,  mult: 1.5, cap: 5500 },
-    { id: 'eg_gen_e',  name: 'East General',     type: 'General',        color: '#00838F', start: 75,  end: 185,  inner: 0.40, outer: 0.62, base: 3000,  mult: 1.1, cap: 9000 },
-    { id: 'eg_gen_w',  name: 'West General',     type: 'General',        color: '#00838F', start: 185, end: 255,  inner: 0.40, outer: 0.62, base: 3000,  mult: 1.1, cap: 8500 },
+    { id: 'eg_exec_n', name: 'North Executive',  type: 'Executive Tier', color: '#7b155c', start: 285, end: 360,  inner: 0.40, outer: 0.62, base: 7000,  mult: 1.5, cap: 5500 },
+    { id: 'eg_exec_s', name: 'South Executive',  type: 'Executive Tier', color: '#2f7509', start: 0,   end: 75,   inner: 0.40, outer: 0.62, base: 7000,  mult: 1.5, cap: 5500 },
+    { id: 'eg_gen_e',  name: 'East General',     type: 'General',        color: '#7b155c', start: 75,  end: 185,  inner: 0.40, outer: 0.62, base: 3000,  mult: 1.1, cap: 9000 },
+    { id: 'eg_gen_w',  name: 'West General',     type: 'General',        color: '#2f7509', start: 185, end: 255,  inner: 0.40, outer: 0.62, base: 3000,  mult: 1.1, cap: 8500 },
 
     // ── Upper tier (nearly full ring) ──
-    { id: 'eg_u1',     name: 'Upper North',      type: 'Upper Deck',     color: '#4DD0E1', start: 230, end: 360,  inner: 0.62, outer: 0.95, base: 1500,  mult: 0.9, cap: 10000 },
-    { id: 'eg_u2',     name: 'Upper South',      type: 'Upper Deck',     color: '#26C6DA', start: 0,   end: 120,  inner: 0.62, outer: 0.95, base: 1500,  mult: 0.9, cap: 10000 },
-    { id: 'eg_u3',     name: 'Upper East',       type: 'Upper Deck',     color: '#4DD0E1', start: 120, end: 230,  inner: 0.62, outer: 0.95, base: 1200,  mult: 0.8, cap: 8000  },
+    { id: 'eg_u1',     name: 'Upper North',      type: 'Upper Deck',     color: '#00838F', start: 230, end: 360,  inner: 0.62, outer: 0.95, base: 1500,  mult: 0.9, cap: 10000 },
+    { id: 'eg_u2',     name: 'Upper South',      type: 'Upper Deck',     color: '#4ca7d7', start: 0,   end: 120,  inner: 0.62, outer: 0.95, base: 1500,  mult: 0.9, cap: 10000 },
+    { id: 'eg_u3',     name: 'Upper East',       type: 'Upper Deck',     color: '#021896', start: 120, end: 230,  inner: 0.62, outer: 0.95, base: 1200,  mult: 0.8, cap: 8000  },
   ],
 
   legend: [

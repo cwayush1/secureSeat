@@ -21,4 +21,9 @@ export function getAllStadiums() {
   return Object.values(STADIUMS);
 }
 
+// All stadiums with their registry keys (for admin dropdowns)
+export function getAllStadiumEntries() {
+  return Object.entries(STADIUMS).map(([key, stadium]) => ({ key, ...stadium }));
+}
+
 export default STADIUMS;

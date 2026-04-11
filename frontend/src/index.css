@@ -1,86 +1,282 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface-muted: #f8fafc;
+  --text: #0f172a;
+  --muted: #64748b;
+  --primary: #2563eb;
+  --border: #e2e8f0;
+  --shadow: 0 30px 60px rgba(15, 23, 42, 0.08);
+  --surface-rgb: 255, 255, 255;
+}
+
+.theme-dark {
+  color-scheme: dark;
+  --bg: #020617;
+  --surface: #111827;
+  --surface-muted: #0f172a;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --primary: #60a5fa;
+  --border: #334155;
+  --shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+  --surface-rgb: 15, 23, 42;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: #f4f7f6;
-  color: #333;
+  background: var(--bg);
+  color: var(--text);
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+  font-family: "Inter", sans-serif;
 }
 
-h1, h2, h3 {
-  color: #2c3e50;
+.app-shell {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
 }
 
-/* Forms and Inputs */
+.nav-header {
+  background: rgba(var(--surface-rgb), 0.95);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-header-scrolled {
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(18px);
+}
+
+.page-shell {
+  width: min(1320px, 100% - 2rem);
+  margin: 0 auto;
+  padding: 32px 0 48px;
+}
+
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.page-title {
+  font-size: clamp(2rem, 2.3vw, 2.75rem);
+  margin: 0;
+  letter-spacing: -0.04em;
+}
+
+.page-description {
+  margin: 0;
+  color: var(--muted);
+  max-width: 760px;
+  line-height: 1.7;
+}
+
+.dashboard-grid {
+  display: grid;
+  gap: 28px;
+}
+
+.page-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  padding: 30px;
+  color: var(--text);
+}
+
+.admin-card {
+  max-width: 900px;
+}
+
+.section-header {
+  margin-bottom: 22px;
+}
+
+.section-title {
+  font-size: 1.55rem;
+  margin: 0;
+}
+
+.form-stack {
+  display: grid;
+  gap: 18px;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
 .input-field {
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 16px;
   width: 100%;
-  box-sizing: border-box;
+  min-height: 52px;
+  background: var(--surface-muted);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 0.95rem 1rem;
+  font-size: 0.95rem;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
 }
 
-/* Buttons */
-button {
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  transition: all 0.2s ease;
+.input-field:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
 }
 
 .btn-primary {
-  padding: 12px 20px;
-  background-color: #3498db;
-  color: white;
+  width: fit-content;
+  padding: 14px 26px;
+  background: linear-gradient(135deg, var(--primary), #be123c);
+  color: #ffffff;
   border: none;
-  border-radius: 6px;
+  border-radius: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.btn-primary:hover:not(:disabled) {
-  background-color: #2980b9;
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.16);
 }
 
-.btn-primary:disabled {
-  background-color: #bdc3c7;
-  cursor: not-allowed;
+.info-panel,
+.note-panel {
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px;
 }
 
-.btn-secondary {
-  padding: 12px 20px;
-  background-color: #95a5a6;
-  color: white;
-  border: none;
-  border-radius: 6px;
+.note-label {
+  margin: 0 0 10px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-/* Ticket Cards */
-.ticket-card {
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  overflow: hidden;
-  border-top: 5px solid #3498db;
-}
-
-.ticket-header {
-  background-color: #ecf0f1;
-  padding: 15px 20px;
-  border-bottom: 1px dashed #bdc3c7;
-}
-
-.ticket-header h3 {
-  margin: 0 0 5px 0;
-}
-
-.ticket-header p {
+.note-text {
   margin: 0;
-  color: #7f8c8d;
-  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.75;
+  font-size: 0.95rem;
 }
 
-.ticket-body {
-  padding: 20px;
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
 }
 
-.ticket-body p {
-  margin: 5px 0;
+.pricing-chip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.pricing-chip-more {
+  color: var(--muted);
+  justify-content: center;
+  font-style: italic;
+}
+
+.theme-toggle-button {
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: var(--surface-muted);
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.theme-toggle-button:hover {
+  transform: translateY(-1px);
+  background: var(--surface);
+}
+
+.theme-dark .theme-toggle-button {
+  border-color: rgba(148, 163, 184, 0.28);
+}
+
+.theme-dark footer,
+.theme-dark .nav-header,
+.theme-dark .page-card,
+.theme-dark .note-panel,
+.theme-dark .info-panel,
+.theme-dark .pricing-chip {
+  background: var(--surface);
+}
+
+.theme-dark header,
+.theme-dark footer,
+.theme-dark .page-card,
+.theme-dark .note-panel,
+.theme-dark .info-panel {
+  border-color: var(--border);
+}
+
+footer {
+  background: #0f172a;
+  color: #cbd5e1;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+.theme-dark footer {
+  background: #020617;
+  color: #cbd5e1;
+}
+
+@media (max-width: 820px) {
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+
+  .page-shell {
+    padding: 24px 1rem 36px;
+  }
 }
