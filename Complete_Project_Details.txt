@@ -1,0 +1,102 @@
+================================================================================
+CRICNEXUS (SECURESEAT) - COMPREHENSIVE PROJECT DOCUMENTATION
+================================================================================
+
+1. FULL SPAN SCOPE OF THE PROJECT
+--------------------------------------------------------------------------------
+CricNexus (internally known as SecureSeat / Criceco) is a highly scalable, enterprise-grade ticketing ecosystem designed to revolutionize how sports and event tickets are sold. The fundamental goal of the project is to absolutely eradicate ticket scalping, bot-driven hoarding, and black-market resales.
+
+To achieve this, the project spans across three major technological paradigms:
+1. High-Concurrency Traffic Management (so the site does not crash when 100,000 users try to book seats simultaneously).
+2. Automated Yield Management (dynamic pricing that adapts to demand in real-time).
+3. Artificial Intelligence Biometric Authentication (locking a digital ticket to a physical human face).
+
+Scope of Deployment:
+- Web-based B2C Portal for Fans to select seats on an interactive map.
+- Centralized Admin configurations for stadium seating, rows, and pricing.
+- Future physical integration with Edge AI cameras at stadium turnstiles to verify faces.
+
+
+2. PROJECT ARCHITECTURE & TECH STACK
+--------------------------------------------------------------------------------
+The project uses a modern Tri-Service Architecture to maintain high availability and separation of concerns.
+
+A. The Client Application (Frontend)
+   - Built on: React.js, Vite, and TailwindCSS.
+   - Implementation: Manages the interactive Stadium grids, webcam access for face capture, and isolated PCI-compliant mock payment modals.
+
+B. The Transaction Engine (Backend)
+   - Built on: Node.js and Express. Web middleware logic.
+   - Implementation: Exposes RESTful APIs. Manages business rules, JWT session authentication, and database commits.
+
+C. The AI Microservice (Biometric Processor)
+   - Built on: Python, FastAPI, and OpenCV.
+   - Implementation: An isolated processor dedicated purely to mathematical image processing. It is segregated from the Node app so heavy ML tasks do not block standard web traffic.
+
+D. The Persistence & Caching Layer (Database)
+   - Primary DB: PostgreSQL (using the 'pgvector' extension).
+   - Cache: Redis Cache for sub-millisecond atomic memory locking.
+
+
+3. ALL FEATURES & ALGORITHMS (IN-DEPTH IMPLEMENTATION)
+--------------------------------------------------------------------------------
+
+FEATURE 1: REDIS 'RACE-CONDITION' SEAT LOCKING ALGORITHM
+- The Problem: When a marquee cricket match opens, thousands of users click the exact same seat simultaneously. Traditional databases will crash or accidentally double-book the seat in the chaos.
+- The Algorithm: Distributed Mutual Exclusion using TTL.
+- Implementation: 
+  When a user clicks a seat, the Node.js backend fires a command to Redis: `SET seat_lock:{matchId}:{seatId} {userId} NX EX 600`.
+  - 'NX' (Not Exists) forces Redis to evaluate the request atomically. It grants the lock ONLY to the very first millisecond request and physically rejects all other simultaneous attempts, eliminating double-booking organically without hitting the heavy PostgreSQL database.
+  - 'EX 600' sets a strict 10-minute expiry (Time-To-Live). If the user does not finish their payment within 10 minutes, the lock effortlessly evaporates from RAM, making the seat instantly available to the public again.
+
+FEATURE 2: DYNAMIC PRICING ALGORITHM (YIELD MANAGEMENT)
+- The Problem: Tickets command massive premium value on black markets. Pricing should intelligently reflect real-time demand.
+- The Algorithm: Multi-Factorial Supply-Demand Multiplier.
+- Implementation:
+  Residing in `StadiumViewer.jsx`, the algorithm computes a `multiplier` based on several distinct mathematical factors:
+  1. Time Factor: How many days are left? (>30 days = 0.9x discount. <3 days = 1.6x surge).
+  2. Scarcity Factor: `bookedSeats / totalSeats`. As the occupancy ratio climbs past 95%, prices surge up to 1.75x.
+  3. Craze Factor: Absolute numerical threshold. If available total seats drop below 50, apply a 1.2x panic multiplier.
+  4. Tier Factor: VIP vs General admission base multipliers.
+  The algorithm multiplies these factors together, but imposes a hard mathematical ceiling of 2.50x to balance maximum profitability with consumer fairness.
+
+FEATURE 3: AI BIOMETRIC ANTI-SCALPING PIPELINE
+- The Problem: CAPTCHAs stop bots, but they don't stop a scalper from buying 5 tickets manually and reselling them outside the stadium.
+- The Algorithm: Convolutional Neural Network (CNN) Feature Extraction.
+- Implementation:
+  1. Capture: The React frontend uses `react-webcam` to snap a Base64-encoded frame of the buyer.
+  2. Detection (YuNet): The image hits the FastAPI Python backend. The 'YuNet' ONNX model rapidly scans the frame for the bounding box of a human face.
+  3. Recognition (SFace): The cropped face matrix is fed into 'SFace', which compresses the complex topology of the user's face into a 128-dimensional mathematical array.
+  4. Persistence: Node.js stores this 128-size array into PostgreSQL. Crucially, the system does NOT store the raw photo.
+  5. Security: If a scalper resells the ticket, the ticket is useless because the cryptographic array is tethered solely to the scalper's face. 
+
+FEATURE 4: SECURE PAYMENT EMULATION & LEDGER SYNCING
+- The Problem: Creating a full software sandbox that accurately mocks Stripe/Bank transaction failures without consuming real money.
+- Implementation: 
+  A custom React component `FakePaymentModal.jsx` handles mock PCI transactions securely. It allows QA testers to simulate network latency, simulate failure/declines, and process mock Successes.
+  Upon a local UI success, the backend securely cross-syncs the PCI details (Card Number, CVV, Expiry Month/Year, Transaction Reference) natively onto an isolated, tightly-coupled `Bank` table within PostgreSQL. This perfectly emulates the data behavior of a real financial ledger.
+
+
+4. DATABASE SCHEMA DOCUMENTATION
+--------------------------------------------------------------------------------
+The PostgreSQL persistence model enforces intense Object-Relational rules to ensure data continuity:
+
+- USERS: Core authentication (JWT storage, passwords).
+- MATCHES, STADIUMS, STANDS, BLOCKS, SEATS: A deep hierarchical normalization mapping out the physical layout of the arena allowing exact granular seat picking.
+- PAYMENTS: Acts as the transaction ledger mapped to the internal `order_id`.
+- TICKETS: The ultimate junction table.
+  - Links: `user_id`, `match_id`, `seat_id`, `payment_id`.
+  - Enforces `UNIQUE INDEX (match_id, seat_id)` so PostgreSQL physically rejects any overlapping tickets.
+  - Hosts the special `face_embedding vector(128)` column utilized by the `pgvector` extension for the biometric data.
+- BANK: An internal auditing schema tightly related via Foreign Key to `Payments(id)` to map checkout transactions.
+
+
+5. FULL SPAN UX FLOW
+--------------------------------------------------------------------------------
+1. Select Match -> The system retrieves dynamic prices from the mathematical Yield Engine.
+2. View Stadium Map -> User clicks a specific block to load the granular Seat Grid.
+3. Engage Redis Lock -> User clicks a seat; React triggers backend `SET NX EX`. User is given exactly 10 minutes to finish.
+4. Capture Biometrics -> UI streams webcam. Python script converts face into a 128-D vector string.
+5. Transact Payment -> User uses FakePayment portal. Money clears, data synced to `Bank` table.
+6. Commit & Issue -> Node.js commits the transaction to the `Tickets` database, appending the `$5::vector` cast payload. 
+7. Gate Entry (Future) -> Stadium turnstiles use Cosine-Similarity distance to compare live user face to the 128-D vector array. If match threshold met, turnstile opens.

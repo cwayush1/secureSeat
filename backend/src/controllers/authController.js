@@ -20,6 +20,12 @@ const generateToken = (res, id, role, email) => {
 const registerUser = async (req, res) => {
     const { name, email, password, role = 'User' } = req.body;
 
+    // Secure password condition: 8+ chars, 1 uppercase, 1 lowercase, 1 number, 1 special char
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+    if (!passwordRegex.test(password)) {
+        return res.status(400).json({ message: 'Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.' });
+    }
+
     try {
         const userExists = await dbPool.query('SELECT * FROM Users WHERE email = $1', [email]);
         if (userExists.rows.length > 0) return res.status(400).json({ message: 'User already exists' });

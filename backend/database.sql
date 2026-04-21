@@ -75,14 +75,31 @@ CREATE TABLE Match_Stands_Config (
     UNIQUE(match_id, stand_id)
 );
 
+-- Payment transactions table
+CREATE TABLE Payments (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES Users(id),
+    order_id VARCHAR(255) UNIQUE NOT NULL,
+    payment_id VARCHAR(255),
+    signature VARCHAR(255),
+    amount DECIMAL(10, 2) NOT NULL,
+    currency VARCHAR(3) DEFAULT 'INR',
+    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'completed', 'failed', 'cancelled')),
+    payment_method VARCHAR(50), -- 'card', 'upi', 'net_banking', etc.
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Transaction ledger tying User, Match, and physical Seat
 CREATE TABLE Tickets (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES Users(id),
     match_id INT REFERENCES Matches(id) ON DELETE CASCADE,
     seat_id INT REFERENCES Seats(id) ON DELETE CASCADE,
+    payment_id INT REFERENCES Payments(id) ON DELETE SET NULL,
     status VARCHAR(20) DEFAULT 'Locked' CHECK (status IN ('Locked', 'Booked', 'Cancelled', 'verified')),
     face_embedding vector(128), 
+    ticket_price DECIMAL(10, 2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -129,3 +146,78 @@ ALTER TABLE Seats DISABLE ROW LEVEL SECURITY;
 ALTER TABLE Matches DISABLE ROW LEVEL SECURITY;
 ALTER TABLE Match_Stands_Config DISABLE ROW LEVEL SECURITY;
 ALTER TABLE Tickets DISABLE ROW LEVEL SECURITY;
+ALTER TABLE Tickets 
+ADD COLUMN IF NOT EXISTS payment_id INT REFERENCES Payments(id) ON DELETE SET NULL,
+ADD COLUMN IF NOT EXISTS ticket_price DECIMAL(10, 2);
+
+
+
+-- Run these queries sequentially to create the Bank schema 
+
+-- 1. Create the Bank Table 
+CREATE TABLE IF NOT EXISTS Bank (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES Users(id) ON DELETE CASCADE,
+    payment_id INT NOT NULL REFERENCES Payments(id) ON DELETE CASCADE,
+    
+    card_holder_name VARCHAR(255) NOT NULL,
+    bank_name VARCHAR(255) NOT NULL,
+    bank_code VARCHAR(20),
+    branch_name VARCHAR(255),
+    ifsc_code VARCHAR(11),
+    
+    card_id VARCHAR(255) UNIQUE,
+    card_number VARCHAR(20) NOT NULL, 
+    card_type VARCHAR(50), 
+    expiry_month INT,
+    expiry_year INT,
+    cvv VARCHAR(10), 
+    
+    transaction_reference VARCHAR(255) UNIQUE,
+    transaction_amount DECIMAL(10, 2) NOT NULL,
+    transaction_currency VARCHAR(3) DEFAULT 'INR',
+    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    account_holder_name VARCHAR(255),
+    account_number VARCHAR(255),
+    account_type VARCHAR(50), 
+    
+    phone_number VARCHAR(20),
+    email VARCHAR(255),
+    address TEXT,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 2. Create the Indexes (For read performance)
+CREATE INDEX IF NOT EXISTS idx_user_id ON Bank(user_id);
+CREATE INDEX IF NOT EXISTS idx_payment_id ON Bank(payment_id);
+CREATE INDEX IF NOT EXISTS idx_card_number ON Bank(card_number);
+CREATE INDEX IF NOT EXISTS idx_transaction_date ON Bank(transaction_date);
+
+-- 3. Trigger for updated_at timestamps
+CREATE OR REPLACE FUNCTION update_bank_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_bank_updated_at
+BEFORE UPDATE ON Bank
+FOR EACH ROW
+EXECUTE FUNCTION update_bank_timestamp();
+
+-- 4. Verify and Insert Default User (User ID: 8)
+-- Ensure this runs successfully. It correctly binds to the User ID 8 you are using.
+INSERT INTO Bank (
+    user_id, payment_id, card_holder_name, bank_name, card_number,
+    card_type, expiry_month, expiry_year, transaction_amount,
+    transaction_reference, transaction_date
+) VALUES (
+    8, 17, 'John Doe', 'HDFC Bank', '1111',
+    'Visa', 12, 2025, 5102.00,
+    'txn_1776625000000', NOW()
+);
