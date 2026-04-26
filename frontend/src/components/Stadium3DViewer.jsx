@@ -41,7 +41,7 @@ export default function Stadium3DViewer({ activeBlockCoords }) {
       r * Math.cos(phi),
       r * Math.sin(phi) * Math.cos(theta)
     );
-    s.camera.lookAt(0, 6, 0);
+    s.camera.lookAt(0, 6, 0); // Always look at the center pitch
   };
 
   // ── Procedural Grass Texture ────────────────────────────────────────────────
@@ -485,40 +485,25 @@ export default function Stadium3DViewer({ activeBlockCoords }) {
     animateTo(VIEWS[key], s);
   }, [animateTo]);
 
-  // ── SMART CAMERA FLY TO BLOCK COORDS (WITH DYNAMIC HEIGHT CALCULATION) ──
+  // ── FLY TO EXTERNAL BLOCK COORDS ───────────────────────────────────────────
   useEffect(() => {
     const s = stateRef.current;
     if (!s.camera || !activeBlockCoords || activeBlockCoords.x == null) return;
 
     const x = parseFloat(activeBlockCoords.x);
-    // If your 2D map doesn't send Z, it might be passing Y instead for the vertical 2D axis.
-    const z = parseFloat(activeBlockCoords.z) || parseFloat(activeBlockCoords.y); 
+    // Add +8 to the Y coordinate so the camera acts like a person's head looking over the seats
+    const y = parseFloat(activeBlockCoords.y) + 8; 
+    const z = parseFloat(activeBlockCoords.z);
 
-    // 1. Calculate how far the block is from the center of the pitch
-    const distanceFromCenter = Math.sqrt(x * x + z * z);
-
-    // 2. Estimate which tier this is based on our 3D stadium math
-    // Stadium starts at radius 87, each tier is 13 units deep
-    let tierIndex = Math.floor((distanceFromCenter - 87) / 13);
-    
-    // Make sure we don't calculate a height below ground or above our highest tier
-    tierIndex = Math.max(0, Math.min(7, tierIndex)); 
-
-    // 3. Calculate the actual 3D height (Y). Each tier goes up by 9 units. 
-    // We add +6 so the camera is at "head height" above the concrete.
-    let calculatedY = (tierIndex + 1) * 9 + 6;
-    
-    // If they clicked the grass near the pitch, keep the camera low
-    if (distanceFromCenter < 87) {
-        calculatedY = 6; 
-    }
-
-    // Convert XYZ into Spherical math to power the smooth camera flight
-    const r = Math.sqrt(x * x + calculatedY * calculatedY + z * z);
-    const phi = Math.acos(calculatedY / r);
+    // Convert the cartesian block coordinates into our Spherical camera math
+    const r = Math.sqrt(x * x + y * y + z * z);
+    const phi = Math.acos(y / r);
     const theta = Math.atan2(x, z);
 
+    // Un-highlight the default preset buttons
     setActiveView('custom');
+
+    // Trigger the smooth flight animation!
     animateTo({ theta, phi, r }, s);
   }, [activeBlockCoords, animateTo]);
 
